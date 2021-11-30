@@ -1,0 +1,16 @@
+<Project>
+	<PropertyGroup>    
+		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+	</PropertyGroup>
+	
+	<!--<ItemGroup>
+		<PackageReference Include="">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<ProjectReference Include="">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+		</ProjectReference>
+  </ItemGroup>-->
+</Project>

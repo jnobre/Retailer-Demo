@@ -1,0 +1,150 @@
+version: '3.4'
+
+services:
+  retailer.demo.identityserver.api:
+    image: ${DOCKER_REGISTRY-}retailerdemoidentityserverapi
+    container_name: IdentityServerAPI
+    build:
+      context: .
+      dockerfile: Retailer.Demo.IdentityServer.API/Dockerfile
+    ports:
+      - "50001:80"
+      - "50002:443"
+    depends_on:
+      - mongo
+    restart: always
+
+  retailer.demo.customeraccounts.api:
+    image: ${DOCKER_REGISTRY-}retailerdemocustomeraccountsapi
+    container_name: api
+    build:
+      context: .
+      dockerfile: Retailer.Demo.CustomerAccounts.API/Dockerfile
+    ports:
+      - "50003:80"
+      - "50004:443"
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - redis
+      - elasticSearch
+    environment:
+      - MongoServer=mongoDb
+      - MongoPort=27017
+      - MongoUser=mongoAdmin
+      - MongoPass=mongoAdmin
+      - MongoDB=lazareTest
+      - MongoAuthSource=admin
+    restart: always
+
+  retailer.demo.retailer.api:
+    image: ${DOCKER_REGISTRY-}retailerdemoretailerapi
+    container_name: RetailerAPI
+    build:
+      context: .
+      dockerfile: Retailer.Demo.Retailer.API/Dockerfile
+    ports:
+      - "50005:80"
+      - "50006:443"
+    restart: always
+
+  retailer.demo.customercatalogapi:
+    image: ${DOCKER_REGISTRY-}retailerdemocustomercatalogapi
+    container_name: CustomerCatalogAPI
+    build:
+      context: .
+      dockerfile: Retailer.Demo.CustomerCatalogAPI/Dockerfile
+    ports:
+      - "50007:80"
+      - "50008:443"
+    restart: always
+
+  retailer.demo.dynamicproperties.api:
+    image: ${DOCKER_REGISTRY-}retailerdemodynamicpropertiesapi
+    container_name: DynamicPropertiesAPI
+    build:
+      context: .
+      dockerfile: Retailer.Demo.DynamicProperties.API/Dockerfile
+    ports:
+      - "50009:80"
+      - "50010:443"
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - redis
+      - elasticSearch
+    environment:
+      - MongoServer=mongoDb
+      - MongoPort=27017
+      - MongoUser=mongoAdmin
+      - MongoPass=mongoAdmin
+      - MongoDB=lazareTest
+      - MongoAuthSource=admin
+    restart: always
+
+  mongo:
+    image: mongo:5.0.3
+    container_name: mongoDb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoAdmin
+      - MONGO_INITDB_ROOT_PASSWORD=mongoAdmin
+    ports:
+      - 27017:27017
+    volumes:
+      - "mongoDbData:/data/db"
+    networks:
+      - my-network
+    restart: always
+
+  redis:
+    image: redis:6.2.6
+    container_name: redis
+    command: redis-server --requirepass redisServer123
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redisData:/data/redisDb"
+    restart: always
+
+  elasticSearch:
+    image: elasticsearch:7.14.2
+    container_name: elasticSearch
+    environment:
+      - cluster.name=elasticSearchCluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.host=0.0.0.0
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - transport.host=0.0.0.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "9200:9200"
+    volumes:
+      - "elasticSearchData:/data/searchDb"
+    restart: always
+
+volumes:
+  mongoDbData:
+    external: true
+  redisData:
+    external: true
+  elasticSearchData:
+    external: true
+
+
+networks:
+  # docker network create -d bridge my-network (NOTE: my-network is a bridge network!)
+  my-network: 
+    external: true
+
+
+
